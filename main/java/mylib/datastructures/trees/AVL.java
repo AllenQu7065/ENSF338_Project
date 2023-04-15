@@ -149,11 +149,9 @@ public class AVL extends BST {
                 if(newNode.getLeft().getBalance() == -1) {
                     //if left.balance is negative one, it is right-heavy so rotate left
                     newNode.setLeft(rotateLeft(newNode.getLeft()));
-
                 } else {
                     //otherwise rotate right
                     newNode = rotateRight(newNode);
-
                 }
             //else if newNode's balance is less than -1, it is unbalanced and is right-heavy (since left - right < -1, right > left)
             } else if(newNode.getBalance() < -1) {
@@ -161,13 +159,12 @@ public class AVL extends BST {
                 if(newNode.getRight().getBalance() == 1) {
                     //if left.balance is one, it is left-heavy so rotate right
                     newNode.setRight(rotateRight(newNode.getRight()));
-
                 } else {
                     //otherwise rotate left
                     newNode = rotateLeft(newNode);
-
                 }
             }
+            newNode.setBalance(getBalance(newNode));
             //return newNode as it is now balanced
             return newNode;
         }
