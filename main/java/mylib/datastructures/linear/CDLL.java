@@ -45,9 +45,9 @@ public class CDLL extends DLL {
     
     @Override
     public void sortedInsert(DNode node) {
-        if (!sorted) {
-            sort();
-        }
+
+        sort();
+        
         if (head == null || node.getData() <= head.getData()) {
             insertHead(node);
         } else if (node.getData() >= tail.getData()) {
@@ -62,8 +62,6 @@ public class CDLL extends DLL {
             current.getPrev().setNext(node);
             current.setPrev(node);
             size++;
-            tail.setNext(head);
-            head.setPrev(tail);
         }
     }
     
@@ -130,50 +128,44 @@ public class CDLL extends DLL {
     
     @Override
     public void sort() {
-        if (head == null || head == tail) {
-            // list is empty or has only one node
+    	if (head == null || head.getNext() == head) {
             return;
         }
-
-        // create a temporary head node to simplify sorting
-        DNode tempHead = new DNode(0);
-        tempHead.setNext(head);
-        head.setPrev(tempHead);
-        tail.setNext(tempHead);
-        tempHead.setPrev(tail);
-
-        boolean sorted = false;
-        while (!sorted) {
-            sorted = true;
-            DNode current = tempHead.getNext().getNext();
-            while (current != tempHead) {
-                DNode nodeToInsert = current;
-                current = current.getNext();
-                if (nodeToInsert.getData() < nodeToInsert.getPrev().getData()) {
-                    // find the proper position to insert nodeToInsert
-                    DNode prev = nodeToInsert.getPrev().getPrev();
-                    while (prev != tempHead.getPrev() && nodeToInsert.getData() < prev.getData()) {
-                        prev = prev.getPrev();
-                    }
-                    // remove nodeToInsert from the list
-                    nodeToInsert.getPrev().setNext(nodeToInsert.getNext());
-                    nodeToInsert.getNext().setPrev(nodeToInsert.getPrev());
-                    // insert nodeToInsert into its proper position
-                    nodeToInsert.setPrev(prev);
-                    nodeToInsert.setNext(prev.getNext());
-                    prev.getNext().setPrev(nodeToInsert);
-                    prev.setNext(nodeToInsert);
-                    sorted = false;
-                }
+    	
+    	DNode current = head.getNext();
+        do {
+            DNode insertionPos = current.getPrev();
+            while (insertionPos != head.getPrev() && insertionPos.getData() > current.getData()) {
+                insertionPos = insertionPos.getPrev();
             }
-        }
+
+            if (insertionPos != current.getPrev()) {
+                // Remove current from its current position
+                current.getPrev().setNext(current.getNext());
+                current.getNext().setPrev(current.getPrev());
+
+                // Insert current into its new position
+                if (insertionPos == head.getPrev() && insertionPos.getData() > current.getData()) {
+                    head = current;
+                }
+                current.setNext(insertionPos.getNext());
+                insertionPos.getNext().setPrev(current);
+                insertionPos.setNext(current);
+                current.setPrev(insertionPos);
+            } 
+
+            current = current.getNext();
+            
+        } while  (current != head);
         
-        // update head and tail references to reflect new order
-        head = tempHead.getNext();
-        tail = tempHead.getPrev();
-        head.setPrev(tail);
-        tail.setNext(head);
+        int counter = 0;
+        tail = head;
+        while (counter < size -1) {
+            tail = tail.getNext();
+            counter++;
+        }
     }
+
 
     
     @Override
@@ -183,25 +175,162 @@ public class CDLL extends DLL {
     
     @Override
     public void print() {
-    	 System.out.println("Circular List length: " + size);
-
-         if (sorted) {
-             System.out.println("Sorted: Yes");
-         } else {
-             System.out.println("Sorted: No");
-         }
-
-         if (head == null) {
-             System.out.println("List is empty");
-         } else {
-             System.out.println("List content:");
-
-             DNode current = head;
-             do {
-                 System.out.print(current.getData() + " ");
-                 current = current.getNext();
-             } while (current != head);
-             System.out.println();
-         }
+    	if(size == 0) {
+    		System.out.println("List is empty");
+    		return;
+    	}
+    	
+    	System.out.println("Circular List length: " + size);
+    	 
+    	boolean sorted = true;
+        DNode currentSort = head;
+        int counter = 0;
+         
+        while (currentSort != null && currentSort.getNext() != null && counter < size-1) {
+           if (currentSort.getData() > currentSort.getNext().getData()) {
+        	   sorted = false;
+           }
+           currentSort = currentSort.getNext();
+           counter++;
+        }
+    	 
+        if (sorted) {
+        	System.out.println("List is sorted.");
+        } else {
+        	System.out.println("List is not sorted.");
+        }
+        
+	    if (head == null) {
+	         System.out.println("List is empty");
+	    } else {
+	         System.out.println("List content:");
+	
+	         DNode current = head;
+	         do {
+	             System.out.print(current.getData() + " ");
+	             current = current.getNext();
+	         } while (current != head);
+	         System.out.println();
+	    }
+        
     }
+    
+    public static void main(String args[]) {
+		
+		System.out.println("Testing Start");
+		System.out.println("\n");
+		
+		DNode node1 = new DNode(1);
+		DNode node2 = new DNode(2);
+		DNode node3 = new DNode(3);
+		DNode node4 = new DNode(4);
+		DNode node5 = new DNode(5);
+		DNode node6 = new DNode(6);
+		DNode node7 = new DNode(7);
+		DNode node8 = new DNode(8);
+		DNode node9 = new DNode(9);
+		DNode node10 = new DNode(10);
+		
+		CDLL linkedList = new CDLL(node1);
+		
+		System.out.println("Testing insertHead(node2):");
+		linkedList.insertHead(node2);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing insertTail(node4):");
+		linkedList.insertTail(node4);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing sort():");
+		linkedList.sort();
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing sortedInsert(node3):");
+		linkedList.sortedInsert(node3);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing insertTail(node5):");
+		linkedList.insertTail(node5);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing search(node3) **in the list**:");
+		if (null == linkedList.search(node3)) {
+			System.out.println("Search Failed");
+		}else {
+			System.out.println("Search Success");
+		}
+		System.out.println("\n");
+		
+		System.out.println("Testing search(node6) **not in list**:");
+		if (null == linkedList.search(node6)) {
+			System.out.println("Search Failed");
+		}else {
+			System.out.println("Search Success");
+		}
+		System.out.println("\n");
+		
+		System.out.println("Testing insert(node6, 3):");
+		linkedList.insert(node6, 3);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing insertHead(node7):");
+		linkedList.insertHead(node7);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing insert(node10, 5):");
+		linkedList.insert(node10, 5);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing insertTail(node9):");
+		linkedList.insertTail(node9);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing sortedInsert(node8):");
+		linkedList.sortedInsert(node8);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing deleteHead():");
+		linkedList.deleteHead();
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing deleteTail():");
+		linkedList.deleteTail();
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing delete(node3):");
+		linkedList.delete(node3);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing delete(node9):");
+		linkedList.delete(node9);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing delete(node7):");
+		linkedList.delete(node7);
+		linkedList.print();
+		System.out.println("\n");
+		
+		System.out.println("Testing clear():");
+		linkedList.clear();
+		linkedList.print();
+		System.out.println("\n");
+		
+	
+		System.out.println("Testing Finished");
+		
+	}
 }
